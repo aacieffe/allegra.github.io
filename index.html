@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Allegra Corrente Fornoni — UX/UI Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────
+   TOKENS & RESET
+───────────────────────────────────────── */
+:root {
+  --ink:        #0C0C0C;
+  --paper:      #F4F1EB;
+  --warm-white: #FAFAF6;
+  --surface:    #ECEAE3;
+  --border:     #D9D5CB;
+  --muted:      #8C8880;
+  --accent:     #C4601E;
+  --accent-2:   #E9A87A;
+  --accent-bg:  rgba(196,96,30,0.08);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────
+   CUSTOM CURSOR
+───────────────────────────────────────── */
+.cursor {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease;
+  transform: translate(-50%,-50%);
+}
+
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.35s cubic-bezier(.23,1,.32,1), width 0.3s, height 0.3s, opacity 0.3s;
+  transform: translate(-50%,-50%);
+  opacity: 0.6;
+}
+
+body:has(a:hover) .cursor-ring,
+body:has(button:hover) .cursor-ring { width: 56px; height: 56px; opacity: 1; }
+
+/* ─────────────────────────────────────────
+   PAGE SYSTEM
+───────────────────────────────────────── */
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ─────────────────────────────────────────
+   NAV
+───────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  mix-blend-mode: normal;
+  transition: background 0.3s, border-bottom 0.3s;
+}
+
+nav.scrolled {
+  background: rgba(244,241,235,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  cursor: pointer;
+  border: none; background: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links button {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-links button::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.nav-links button:hover { color: var(--ink); }
+.nav-links button:hover::after { width: 100%; }
+
+/* ─────────────────────────────────────────
+   HOME — HERO
+───────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-word {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: clamp(200px, 28vw, 420px);
+  color: rgba(12,12,12,0.04);
+  letter-spacing: -0.02em;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  animation: drift 20s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -52%) scale(1.02); }
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 120px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 40px; height: 1px;
+  background: var(--accent);
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 12vw, 180px);
+  line-height: 0.88;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  opacity: 0;
+  animation: fadeUp 0.9s 0.35s forwards;
+}
+
+.hero-name em {
+  font-style: normal;
+  color: var(--accent);
+  display: block;
+}
+
+.hero-tagline {
+  margin-top: 36px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 480px;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.55s forwards;
+}
+
+.hero-cta {
+  margin-top: 48px;
+  display: flex;
+  gap: 20px;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.7s forwards;
+}
+
+.btn-primary {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--warm-white);
+  border: none;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-primary:hover { background: var(--accent); transform: translateY(-2px); }
+
+.btn-secondary {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+}
+
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+.hero-scroll {
+  padding: 32px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0;
+  animation: fadeUp 1s 1s forwards;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ─────────────────────────────────────────
+   HOME — ABOUT STRIP
+───────────────────────────────────────── */
+.about-strip {
+  background: var(--ink);
+  padding: 64px 60px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.about-label {
+  font-family: var(--font-display);
+  font-size: 48px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.about-text {
+  font-size: 17px;
+  line-height: 1.8;
+  color: rgba(250,250,246,0.75);
+}
+
+.about-text strong {
+  color: var(--warm-white);
+  font-weight: 400;
+}
+
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.about-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  border: 1px solid rgba(233,168,122,0.3);
+  padding: 5px 12px;
+}
+
+/* ─────────────────────────────────────────
+   HOME — PROJECTS
+───────────────────────────────────────── */
+.projects-section {
+  padding: 100px 60px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 60px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 52px;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: var(--ink);
+  margin-top: 6px;
+}
+
+.project-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  margin-bottom: 2px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.project-card:hover { transform: translateY(-3px); }
+.project-card:hover .project-card-arrow { transform: translate(4px, -4px); }
+.project-card:hover .project-card-cover-inner { transform: scale(1.04); }
+
+.project-card-cover {
+  height: 380px;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card-cover-inner {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.6s cubic-bezier(.23,1,.32,1);
+}
+
+.project-card-cover.auto .project-card-cover-inner {
+  background: radial-gradient(ellipse at 30% 50%, #1a1a2e 0%, #0C0C0C 70%);
+}
+
+.project-card-cover.waste .project-card-cover-inner {
+  background: radial-gradient(ellipse at 70% 40%, #1a2010 0%, #0C0C0C 70%);
+}
+
+.cover-big-num {
+  font-family: var(--font-display);
+  font-size: 220px;
+  color: rgba(255,255,255,0.05);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+}
+
+.cover-icon-text {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.18);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.cover-bar {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.project-card:hover .cover-bar { transform: scaleX(1); }
+
+.project-card-body {
+  padding: 48px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--warm-white);
+}
+
+.project-card-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.meta-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 4px 10px;
+}
+
+.project-card-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.project-card-title {
+  font-family: var(--font-display);
+  font-size: 44px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.project-card-desc {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--muted);
+  flex: 1;
+}
+
+.project-card-footer {
+  margin-top: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.project-card-cta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.project-card-arrow {
+  font-size: 20px;
+  color: var(--accent);
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+/* ─────────────────────────────────────────
+   HOME — SKILLS STRIP
+───────────────────────────────────────── */
+.skills-strip {
+  padding: 80px 60px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 48px;
+}
+
+.skill-block {
+  background: var(--warm-white);
+  padding: 36px 32px;
+}
+
+.skill-block-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-item {
+  font-size: 13px;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  background: var(--paper);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.skill-item:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ─────────────────────────────────────────
+   HOME — CONTACT STRIP
+───────────────────────────────────────── */
+.contact-strip {
+  background: var(--ink);
+  padding: 80px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-left h2 {
+  font-family: var(--font-display);
+  font-size: 64px;
+  letter-spacing: 0.04em;
+  color: var(--warm-white);
+  line-height: 1;
+}
+
+.contact-left h2 span { color: var(--accent); }
+
+.contact-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.contact-item {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgba(250,250,246,0.6);
+  text-decoration: none;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-item:hover { color: var(--accent-2); }
+
+.contact-item::before {
+  content: '→';
+  color: var(--accent);
+  font-size: 14px;
+}
+
+/* ─────────────────────────────────────────
+   CASE STUDY PAGE
+───────────────────────────────────────── */
+.cs-hero {
+  min-height: 70vh;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 120px 60px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cs-hero-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cs-hero-big-word {
+  font-family: var(--font-display);
+  font-size: clamp(140px, 22vw, 320px);
+  color: rgba(255,255,255,0.03);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  padding-right: 40px;
+}
+
+.cs-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cs-eyebrow::before {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--accent);
+  display: block;
+}
+
+.cs-title {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 8vw, 120px);
+  letter-spacing: 0.02em;
+  line-height: 0.92;
+  color: var(--warm-white);
+  position: relative;
+  z-index: 1;
+}
+
+.cs-accent-bar {
+  width: 100%; height: 3px;
+  background: var(--accent);
+  margin-top: 48px;
+}
+
+/* Overview table */
+.cs-overview {
+  padding: 64px 60px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.cs-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.cs-overview-cell {
+  background: var(--warm-white);
+  padding: 28px 24px;
+}
+
+.cs-overview-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.cs-overview-value {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* Case study content */
+.cs-content {
+  padding: 80px 60px;
+  max-width: 860px;
+}
+
+.cs-section {
+  margin-bottom: 72px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.cs-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cs-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cs-section-label::before {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.cs-section-title {
+  font-family: var(--font-display);
+  font-size: 38px;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  margin-bottom: 20px;
+  line-height: 1;
+}
+
+.cs-text {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+.cs-text strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Process steps */
+.cs-steps {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 32px;
+}
+
+.cs-step {
+  background: var(--warm-white);
+  padding: 32px;
+}
+
+.cs-step-num {
+  font-family: var(--font-display);
+  font-size: 48px;
+  color: rgba(196,96,30,0.15);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.cs-step-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.cs-step-text {
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+/* Solution blocks */
+.cs-solution-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 32px;
+}
+
+.cs-solution-block {
+  background: var(--ink);
+  padding: 32px 28px;
+  color: var(--warm-white);
+}
+
+.cs-solution-icon {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.cs-solution-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  color: var(--warm-white);
+  margin-bottom: 10px;
+}
+
+.cs-solution-subtitle {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 14px;
+}
+
+.cs-solution-text {
+  font-size: 12px;
+  line-height: 1.75;
+  color: rgba(250,250,246,0.6);
+}
+
+/* Image placeholder */
+.cs-image-placeholder {
+  width: 100%;
+  height: 320px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 32px;
+  border-radius: 2px;
+}
+
+.cs-image-placeholder span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cs-image-placeholder .placeholder-icon {
+  font-size: 28px;
+  opacity: 0.4;
+}
+
+/* Outcomes */
+.cs-outcomes {
+  background: var(--accent);
+  padding: 48px;
+  margin-top: 32px;
+}
+
+.cs-outcomes-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  letter-spacing: 0.05em;
+  color: var(--warm-white);
+  margin-bottom: 24px;
+}
+
+.cs-outcome-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: rgba(250,250,246,0.85);
+  line-height: 1.6;
+}
+
+.cs-outcome-item::before {
+  content: '→';
+  color: var(--warm-white);
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Nav back */
+.cs-nav-back {
+  position: fixed;
+  bottom: 32px;
+  right: 60px;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--warm-white);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.cs-nav-back:hover { background: var(--accent); }
+
+/* Next case study */
+.cs-next {
+  background: var(--ink);
+  padding: 80px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  transition: background 0.3s;
+}
+
+.cs-next:hover { background: #161616; }
+.cs-next:hover .cs-next-arrow { transform: translateX(8px); }
+
+.cs-next-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.cs-next-title {
+  font-family: var(--font-display);
+  font-size: 40px;
+  letter-spacing: 0.04em;
+  color: var(--warm-white);
+}
+
+.cs-next-arrow {
+  font-size: 40px;
+  color: var(--accent);
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  padding: 40px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.footer-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  color: rgba(250,250,246,0.4);
+}
+
+.footer-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(250,250,246,0.25);
+  letter-spacing: 0.08em;
+}
+
+/* ─────────────────────────────────────────
+   ANIMATIONS
+───────────────────────────────────────── */
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(28px); }
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 900px) {
+  nav, .hero, .about-strip, .projects-section,
+  .skills-strip, .contact-strip, .cs-hero,
+  .cs-overview, .cs-content, footer { padding-left: 28px; padding-right: 28px; }
+
+  .hero-name { font-size: clamp(56px, 14vw, 120px); }
+  .about-strip { grid-template-columns: 1fr; gap: 32px; }
+  .project-card { grid-template-columns: 1fr; }
+  .project-card-cover { height: 240px; }
+  .cs-overview-grid { grid-template-columns: repeat(2,1fr); }
+  .cs-steps { grid-template-columns: 1fr; }
+  .contact-strip { flex-direction: column; gap: 40px; align-items: flex-start; }
+  .contact-right { align-items: flex-start; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .cs-nav-back { right: 24px; bottom: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ══════════════════════════════════════
+     NAV
+══════════════════════════════════════ -->
+<nav id="mainNav">
+  <button class="nav-logo" onclick="showPage('home')">ACF</button>
+  <ul class="nav-links">
+    <li><button onclick="showPage('home')">Work</button></li>
+    <li><button onclick="showPage('home'); scrollToSkills()">About</button></li>
+    <li><button onclick="showPage('home'); scrollToContact()">Contact</button></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════
+     PAGE: HOME
+══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg-word">DESIGN</div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">UX/UI Designer · Florence, Italy</div>
+      <h1 class="hero-name">
+        ALLEGRA<br>
+        CORRENTE<br>
+        <em>FORNONI</em>
+      </h1>
+      <p class="hero-tagline">
+        I design digital products that work for people — from automotive fleet portals to smart waste management platforms. End-to-end, from brief to delivery.
+      </p>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="showPage('cs1')">View Case Studies</button>
+        <button class="btn-secondary" onclick="scrollToContact()">Get in Touch</button>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- About strip -->
+  <section class="about-strip">
+    <div class="about-label">WHO<br>I AM</div>
+    <div>
+      <p class="about-text">
+        UX/UI Designer with <strong>3+ years of experience</strong> designing web and mobile applications for international clients. I work end-to-end — from discovery and wireframing to high-fidelity UI and developer handoff. <strong>Daily work in English.</strong> Currently at BONART srl, designing products in the automotive and smart city sectors.
+      </p>
+      <div class="about-tags">
+        <span class="about-tag">User Experience</span>
+        <span class="about-tag">UI Design</span>
+        <span class="about-tag">Design Systems</span>
+        <span class="about-tag">Prototyping</span>
+        <span class="about-tag">Figma</span>
+        <span class="about-tag">Accessibility</span>
+        <span class="about-tag">B2B · B2C</span>
+        <span class="about-tag">International Clients</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="projects-section">
+    <div class="section-header">
+      <div>
+        <div class="section-num">01 — Selected Work</div>
+        <h2 class="section-title">CASE STUDIES</h2>
+      </div>
+    </div>
+
+    <!-- Card 1: Automotive -->
+    <div class="project-card" onclick="showPage('cs1')">
+      <div class="project-card-cover auto">
+        <div class="project-card-cover-inner">
+          <div class="cover-icon-text">AUTOMOTIVE</div>
+          <div class="cover-big-num">01</div>
+        </div>
+        <div class="cover-bar"></div>
+      </div>
+      <div class="project-card-body">
+        <div>
+          <div class="project-card-meta">
+            <span class="meta-tag">UX/UI Design</span>
+            <span class="meta-tag">Web + Mobile</span>
+            <span class="meta-tag">B2B + B2C</span>
+          </div>
+          <div class="project-card-num">Case Study — 01</div>
+          <div class="project-card-title">AUTOMOTIVE DIGITAL PLATFORM</div>
+          <p class="project-card-desc">
+            Design of web portals and mobile applications for both fleet operators — vehicle management, monitoring and maintenance — and end users managing their personal vehicle. Designed from scratch, from discovery to delivery.
+          </p>
+        </div>
+        <div class="project-card-footer">
+          <span class="project-card-cta">View Case Study</span>
+          <span class="project-card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Waste -->
+    <div class="project-card" onclick="showPage('cs2')" style="margin-top:2px">
+      <div class="project-card-cover waste">
+        <div class="project-card-cover-inner">
+          <div class="cover-icon-text">SMART WASTE</div>
+          <div class="cover-big-num">02</div>
+        </div>
+        <div class="cover-bar"></div>
+      </div>
+      <div class="project-card-body">
+        <div>
+          <div class="project-card-meta">
+            <span class="meta-tag">UX/UI Design</span>
+            <span class="meta-tag">Design System</span>
+            <span class="meta-tag">Smart City</span>
+          </div>
+          <div class="project-card-num">Case Study — 02</div>
+          <div class="project-card-title">SMART WASTE MANAGEMENT</div>
+          <p class="project-card-desc">
+            An integrated platform for urban smart waste management: a management web app for real-time monitoring, a field operators app, and an end-user app for waste disposal. Three products designed from zero with a single, coherent Design System.
+          </p>
+        </div>
+        <div class="project-card-footer">
+          <span class="project-card-cta">View Case Study</span>
+          <span class="project-card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section class="skills-strip" id="skills-section">
+    <div class="section-header">
+      <div>
+        <div class="section-num">02 — Expertise</div>
+        <h2 class="section-title">SKILLS</h2>
+      </div>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-block">
+        <div class="skill-block-label">Design</div>
+        <div class="skill-list">
+          <span class="skill-item">User Experience</span>
+          <span class="skill-item">Graphic Design</span>
+          <span class="skill-item">Prototyping</span>
+          <span class="skill-item">Wireframing</span>
+          <span class="skill-item">Sketching</span>
+          <span class="skill-item">Responsive Design</span>
+          <span class="skill-item">Accessibility</span>
+          <span class="skill-item">Design Systems</span>
+        </div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-block-label">Software</div>
+        <div class="skill-list">
+          <span class="skill-item">Figma</span>
+          <span class="skill-item">Adobe XD</span>
+          <span class="skill-item">Illustrator</span>
+          <span class="skill-item">Photoshop</span>
+          <span class="skill-item">InDesign</span>
+          <span class="skill-item">Diagrams</span>
+        </div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-block-label">Soft Skills</div>
+        <div class="skill-list">
+          <span class="skill-item">Client Management</span>
+          <span class="skill-item">Team Working</span>
+          <span class="skill-item">Problem Solving</span>
+          <span class="skill-item">Dev Collaboration</span>
+          <span class="skill-item">English (B2+)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact-strip" id="contact-section">
+    <div class="contact-left">
+      <h2>LET'S<br><span>WORK</span><br>TOGETHER</h2>
+    </div>
+    <div class="contact-right">
+      <a class="contact-item" href="mailto:allegracorrentefornoni@gmail.com">allegracorrentefornoni@gmail.com</a>
+      <a class="contact-item" href="tel:+393346099742">(+39) 334 609 9742</a>
+      <a class="contact-item" href="#">Download CV</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-name">Allegra Corrente Fornoni</div>
+    <div class="footer-note">UX/UI Designer · Florence, Italy · 2025</div>
+  </footer>
+
+</div><!-- /page-home -->
+
+
+<!-- ══════════════════════════════════════
+     PAGE: CASE STUDY 1 — AUTOMOTIVE
+══════════════════════════════════════ -->
+<div class="page" id="page-cs1">
+
+  <section class="cs-hero">
+    <div class="cs-hero-bg">
+      <div class="cs-hero-big-word">AUTO</div>
+    </div>
+    <div class="cs-eyebrow">Case Study 01 — BONART srl</div>
+    <h1 class="cs-title">AUTOMOTIVE<br>DIGITAL<br>PLATFORM</h1>
+    <div class="cs-accent-bar"></div>
+  </section>
+
+  <!-- Overview -->
+  <div class="cs-overview">
+    <div class="cs-overview-grid">
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Client</div>
+        <div class="cs-overview-value">BONART srl</div>
+      </div>
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Industry</div>
+        <div class="cs-overview-value">Automotive</div>
+      </div>
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Timeline</div>
+        <div class="cs-overview-value">2022 – Ongoing</div>
+      </div>
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Role</div>
+        <div class="cs-overview-value">UX/UI Designer<br><span style="font-size:12px;color:var(--muted)">End-to-end ownership</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="cs-content">
+
+    <div class="cs-section">
+      <div class="cs-section-label">The Problem</div>
+      <h2 class="cs-section-title">STARTING FROM ZERO</h2>
+      <p class="cs-text">
+        The client operated in the automotive sector without adequate digital tools to manage either company fleets or the relationship with end users. <strong>No centralised platform existed</strong> — fleet operators worked with fragmented processes, while drivers had no digital access to information about their own vehicle. Everything had to be designed from scratch, for two very different user types: B2B fleet operators and B2C end users.
+      </p>
+      <div class="cs-image-placeholder">
+        <span class="placeholder-icon">🖼</span>
+        <span>Add your discovery / problem framing image here</span>
+      </div>
+    </div>
+
+    <div class="cs-section">
+      <div class="cs-section-label">The Process</div>
+      <h2 class="cs-section-title">HOW I WORKED</h2>
+      <div class="cs-steps">
+        <div class="cs-step">
+          <div class="cs-step-num">01</div>
+          <div class="cs-step-title">DISCOVERY</div>
+          <p class="cs-step-text">Stakeholder interviews and analysis of existing operational workflows. Requirements gathering for both user types. Competitive analysis to identify established patterns and areas for improvement.</p>
+        </div>
+        <div class="cs-step">
+          <div class="cs-step-num">02</div>
+          <div class="cs-step-title">DEFINITION</div>
+          <p class="cs-step-text">Separate user flow mapping for operators and end users, with attention to touchpoints between the two systems. Functional prioritisation in close collaboration with the development team.</p>
+        </div>
+        <div class="cs-step">
+          <div class="cs-step-num">03</div>
+          <div class="cs-step-title">DESIGN</div>
+          <p class="cs-step-text">Low-fidelity wireframes to validate architecture and flows, followed by high-fidelity mockups. Shared Design System across both products to ensure visual consistency and reduce dev time.</p>
+        </div>
+        <div class="cs-step">
+          <div class="cs-step-num">04</div>
+          <div class="cs-step-title">ITERATION</div>
+          <p class="cs-step-text">Structured client presentations with feedback collection. Constant communication with the development team in English. Technical documentation updated at every sprint.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cs-section">
+      <div class="cs-section-label">The Solution</div>
+      <h2 class="cs-section-title">TWO PRODUCTS, ONE ECOSYSTEM</h2>
+      <p class="cs-text">Two distinct digital products, designed consistently within the same ecosystem — sharing a Design System and a coherent visual language.</p>
+      <div class="cs-solution-grid">
+        <div class="cs-solution-block">
+          <div class="cs-solution-icon">🖥</div>
+          <div class="cs-solution-subtitle">Web Application · B2B</div>
+          <div class="cs-solution-title">FLEET OPERATORS PORTAL</div>
+          <p class="cs-solution-text">Centralised fleet management: vehicle monitoring, maintenance planning, intervention management and operational reporting. Designed for efficiency and clarity at scale.</p>
+        </div>
+        <div class="cs-solution-block" style="background:var(--accent)">
+          <div class="cs-solution-icon">📱</div>
+          <div class="cs-solution-subtitle">Mobile App · B2C</div>
+          <div class="cs-solution-title">END USER APP</div>
+          <p class="cs-solution-text">Personal vehicle management: vehicle status, notifications, service history and access to connected services. Designed to be simple, intuitive, and genuinely useful.</p>
+        </div>
+      </div>
+      <div class="cs-image-placeholder" style="margin-top:16px">
+        <span class="placeholder-icon">🖼</span>
+        <span>Add your mockup screens here</span>
+      </div>
+    </div>
+
+    <div class="cs-section">
+      <div class="cs-section-label">Outcomes</div>
+      <div class="cs-outcomes">
+        <div class="cs-outcomes-title">RESULTS</div>
+        <div class="cs-outcome-item">Two digital products designed from scratch within a shared, consistent Design System</div>
+        <div class="cs-outcome-item">Interfaces validated with the client through structured presentation and testing sessions</div>
+        <div class="cs-outcome-item">Full technical documentation delivered to the development team at every sprint</div>
+        <div class="cs-outcome-item">Constant communication with international stakeholders in English</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Next case study -->
+  <div class="cs-next" onclick="showPage('cs2')">
+    <div>
+      <div class="cs-next-label">Next Case Study</div>
+      <div class="cs-next-title">SMART WASTE MANAGEMENT →</div>
+    </div>
+    <span class="cs-next-arrow">→</span>
+  </div>
+
+  <footer>
+    <div class="footer-name">Allegra Corrente Fornoni</div>
+    <div class="footer-note">UX/UI Designer · Florence, Italy · 2025</div>
+  </footer>
+
+  <button class="cs-nav-back" onclick="showPage('home')">← Back to Work</button>
+
+</div><!-- /page-cs1 -->
+
+
+<!-- ══════════════════════════════════════
+     PAGE: CASE STUDY 2 — SMART WASTE
+══════════════════════════════════════ -->
+<div class="page" id="page-cs2">
+
+  <section class="cs-hero">
+    <div class="cs-hero-bg">
+      <div class="cs-hero-big-word">WASTE</div>
+    </div>
+    <div class="cs-eyebrow">Case Study 02 — BONART srl</div>
+    <h1 class="cs-title">SMART WASTE<br>MANAGEMENT<br>PLATFORM</h1>
+    <div class="cs-accent-bar"></div>
+  </section>
+
+  <!-- Overview -->
+  <div class="cs-overview">
+    <div class="cs-overview-grid">
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Client</div>
+        <div class="cs-overview-value">BONART srl</div>
+      </div>
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Industry</div>
+        <div class="cs-overview-value">Smart City /<br>Waste Management</div>
+      </div>
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Timeline</div>
+        <div class="cs-overview-value">2022 – Ongoing</div>
+      </div>
+      <div class="cs-overview-cell">
+        <div class="cs-overview-label">Role</div>
+        <div class="cs-overview-value">UX/UI Designer<br><span style="font-size:12px;color:var(--muted)">End-to-end ownership</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="cs-content">
+
+    <div class="cs-section">
+      <div class="cs-section-label">The Problem</div>
+      <h2 class="cs-section-title">THREE USERS, ONE PLATFORM</h2>
+      <p class="cs-text">
+        The client needed a complete digital solution to modernise the management of smart electronic waste units across the urban collection network. <strong>No previous product existed</strong> — everything had to be designed from scratch, for three very different user types: back-office administrators, field operators, and end users (citizens). The challenge was creating three coherent products that shared a single design language.
+      </p>
+      <div class="cs-image-placeholder">
+        <span class="placeholder-icon">🖼</span>
+        <span>Add your discovery / user mapping image here</span>
+      </div>
+    </div>
+
+    <div class="cs-section">
+      <div class="cs-section-label">The Process</div>
+      <h2 class="cs-section-title">HOW I WORKED</h2>
+      <div class="cs-steps">
+        <div class="cs-step">
+          <div class="cs-step-num">01</div>
+          <div class="cs-step-title">DISCOVERY</div>
+          <p class="cs-step-text">Stakeholder interviews to gather requirements, map existing operational workflows, and understand the needs of each of the three user groups. Competitive analysis to identify smart city best practices.</p>
+        </div>
+        <div class="cs-step">
+          <div class="cs-step-num">02</div>
+          <div class="cs-step-title">DEFINITION</div>
+          <p class="cs-step-text">User flow mapping for each of the three distinct touchpoints. Functional prioritisation in close collaboration with the development team to align design decisions with technical constraints.</p>
+        </div>
+        <div class="cs-step">
+          <div class="cs-step-num">03</div>
+          <div class="cs-step-title">DESIGN</div>
+          <p class="cs-step-text">Low-fidelity wireframes to validate structure with the client, followed by high-fidelity mockups. Creation of a shared Design System with the dev team, with a strong focus on accessibility across all three products.</p>
+        </div>
+        <div class="cs-step">
+          <div class="cs-step-num">04</div>
+          <div class="cs-step-title">ITERATION</div>
+          <p class="cs-step-text">Cyclic revisions based on client feedback during structured presentation sessions. Continuous update of development support documentation and interface specifications.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cs-section">
+      <div class="cs-section-label">The Solution</div>
+      <h2 class="cs-section-title">THREE PRODUCTS, ONE DESIGN SYSTEM</h2>
+      <p class="cs-text">An integrated platform made up of three distinct yet visually and functionally consistent products, all built on a single Design System to ensure coherence and scalability.</p>
+      <div class="cs-solution-grid">
+        <div class="cs-solution-block">
+          <div class="cs-solution-icon">🖥</div>
+          <div class="cs-solution-subtitle">Web App · Administrators</div>
+          <div class="cs-solution-title">MANAGEMENT DASHBOARD</div>
+          <p class="cs-solution-text">Real-time monitoring of smart electronic units across the territory. Status visualisation, intervention management and reporting tools.</p>
+        </div>
+        <div class="cs-solution-block" style="background:var(--accent)">
+          <div class="cs-solution-icon">📱</div>
+          <div class="cs-solution-subtitle">Mobile App · Field Staff</div>
+          <div class="cs-solution-title">OPERATORS APP</div>
+          <p class="cs-solution-text">On-the-ground operational management. Simplified interface optimised for use in mobility and non-ideal conditions. Robust and fast.</p>
+        </div>
+        <div class="cs-solution-block" style="background:#1a1a1a">
+          <div class="cs-solution-icon">📱</div>
+          <div class="cs-solution-subtitle">Mobile App · Citizens</div>
+          <div class="cs-solution-title">END USER APP</div>
+          <p class="cs-solution-text">Guided waste disposal for citizens. Intuitive onboarding, clear flows and accessible communication for a broad and diverse user base.</p>
+        </div>
+      </div>
+      <div class="cs-image-placeholder" style="margin-top:16px">
+        <span class="placeholder-icon">🖼</span>
+        <span>Add your mockup screens here</span>
+      </div>
+    </div>
+
+    <div class="cs-section">
+      <div class="cs-section-label">Outcomes</div>
+      <div class="cs-outcomes">
+        <div class="cs-outcomes-title">RESULTS</div>
+        <div class="cs-outcome-item">Three digital products designed from scratch, sharing one cohesive Design System</div>
+        <div class="cs-outcome-item">Accessibility-first approach applied consistently across all three touchpoints</div>
+        <div class="cs-outcome-item">Interfaces validated with the client through structured presentation and testing sessions</div>
+        <div class="cs-outcome-item">Full technical documentation and interface specifications delivered to the dev team</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Next / back -->
+  <div class="cs-next" onclick="showPage('cs1')">
+    <div>
+      <div class="cs-next-label">Previous Case Study</div>
+      <div class="cs-next-title">AUTOMOTIVE PLATFORM ←</div>
+    </div>
+    <span class="cs-next-arrow">←</span>
+  </div>
+
+  <footer>
+    <div class="footer-name">Allegra Corrente Fornoni</div>
+    <div class="footer-note">UX/UI Designer · Florence, Italy · 2025</div>
+  </footer>
+
+  <button class="cs-nav-back" onclick="showPage('home')">← Back to Work</button>
+
+</div><!-- /page-cs2 -->
+
+
+<script>
+/* ── CURSOR ── */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+});
+
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+/* ── PAGE NAVIGATION ── */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + id);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Trigger scroll animations
+    setTimeout(() => observeSections(), 100);
+  }
+}
+
+/* ── SCROLL NAV ── */
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* ── SCROLL ANIMATIONS ── */
+function observeSections() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.cs-section').forEach(el => obs.observe(el));
+}
+observeSections();
+
+/* ── SCROLL TO SECTION ── */
+function scrollToSkills() {
+  setTimeout(() => {
+    document.getElementById('skills-section')?.scrollIntoView({ behavior: 'smooth' });
+  }, 50);
+}
+function scrollToContact() {
+  setTimeout(() => {
+    document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+  }, 50);
+}
+</script>
+</body>
+</html>
